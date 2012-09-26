@@ -52,7 +52,14 @@ class BaseHandler(webapp2.RequestHandler):
 			logging.debug('after call to authorize')	
 			return False
 
-		authorized = ['eugene.dorfman@gmail.com','eugene.dorfman@postindustria.com','alexander.antonyuk@postindustria.com','oleg.kovtun@postindustria.com','millena.korneeva@postindustria.com']
+		authorized = [
+			'eugene.dorfman@gmail.com',
+			'eugene.dorfman@postindustria.com',
+			'alexander.antonyuk@postindustria.com',
+			'oleg.kovtun@postindustria.com',
+			'millena.korneeva@postindustria.com',
+			'andrew.denisov@postindustria.com'
+			]
 		return user and user.email() in authorized
 
 	def authorize(self):
@@ -114,6 +121,7 @@ class CrashLogsGetHandler(BaseHandler):
 				}
 				template = 'crashlogs.html'
 			self.renderTemplate(template,template_values)
+
 class CrashLogHandler(BaseHandler):
 	def post(self):
 		data = json.loads(self.request.body)
@@ -121,6 +129,7 @@ class CrashLogHandler(BaseHandler):
 		crashlog.build = data['build']
 		crashlog.device = data['device']
 		crashlog.user = data['user']
+		crashlog.error = data['error']
 		crashlog.crashlog = data['crashlog']
 		crashlog.put()
 		self.response.out.write('Success')
