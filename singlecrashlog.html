@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/main.css"/>
+	</head>
+<body>
+	{% if isAuthorized %}
+		<p><a href="/crashlogs">Back to crashlogs</a></p>
+		{% if crashlog %}
+				<p><b>Build:</b> {{ crashlog.build }}</p>
+				<p><b>Device:</b> {{ crashlog.device }}</p>
+				<p><b>User:</b> {{ crashlog.user }}</p>
+				<p><b>Error:</b> {{ crashlog.error }}</p>
+				<p><b>Created:</b> {{ crashlog.created }}</p>
+				<pre>{{ crashlog.crashlog}}</pre>
+			</tr>
+		{% endif %}	
+	{% else %}
+		<p>Unauthorized</p>
+	{% endif %}
+	<p><a href="{{ logoutUrl }}">Logout</a></p>
+</body>
+</html>

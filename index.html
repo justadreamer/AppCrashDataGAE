@@ -1,35 +1,11 @@
 <html>
 	<head>
-		<style type="text/css">
-			table th {
-				border:solid 1px black;
-			}
-			table tr {
-				border:solid 1px black;
-			}
-			table td {
-				border:solid 1px black;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="/main.css" />
 	</head>
   <body>
 	{% if isAuthorized %}
-		<table cellspacing="0px">
-			<tr>
-				<th>Name</th>
-				<th>Token</th>
-				<th>Created</th>
-			</tr>
-			{% if sessions %}
-			    {% for session in sessions %}
-					<tr>
-						<td>{{ session.name }}</td>
-						<td>{{ session.token }}</td>
-						<td>{{ session.created }}</td>
-					</tr>
-				{% endfor %}
-			{% endif %}
-		</table>
+		<p><a href="/sessions">Sessions/Tokens</a></p>
+		<p><a href="/crashlogs">Crash Logs</a></p>
 	{% else %}
 		<p>Unauthorized</p>
 	{% endif %}

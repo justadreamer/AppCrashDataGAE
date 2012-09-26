@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/main.css"/>
+	</head>
+<body>
+	{% if isAuthorized %}
+		<p><a href="/">Main</a></p>
+		<p><a href="/sessions">Sessions</a></p>
+		<table cellspacing="0px">
+			<tr>
+				<th>Build</th>
+ 				<th>Device</th>
+				<th>User</th>
+				<th>Error</th>
+				<th>Created</th>
+			</tr>
+ 		{% if crashlogs %}
+			{% for crashlog in crashlogs %}
+				<tr>
+					<td>{{ crashlog.build }}</td>
+ 					<td>{{ crashlog.device }}</td>
+					<td>{{ crashlog.user }}</td>
+					<td>{{ crashlog.error }} <a href="/crashlogs?id={{ crashlog.key() }}"> Crash Log </a></td>
+					<td>{{ crashlog.created }}</td>
+				</tr>
+			{% endfor %}
+ 		{% endif %}
+		</table>
+			
+	{% else %}
+		<p>Unauthorized</p>
+	{% endif %}
+	<p><a href="{{ logoutUrl }}">Logout</a></p>
+</body>
+</html>
