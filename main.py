@@ -58,7 +58,7 @@ class BaseHandler(webapp2.RequestHandler):
 			'alexander.antonyuk@postindustria.com',
 			'oleg.kovtun@postindustria.com',
 			'millena.korneeva@postindustria.com',
-			'andrew.denisov@postindustria.com'
+			'andrew.denisov@postindustria.com',
 			'stanislav.baranov@postindustria.com',
 			'vasiliy.dorozhinskiy@postindustria.com',
 			]
