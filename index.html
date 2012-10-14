@@ -4,6 +4,9 @@
 	</head>
   <body>
 	{% if isAuthorized %}
+		{% if isSuperAdmin %}
+			<p><a href="/users">Users</a></p>
+		{% endif %}
 		<p><a href="/sessions">Sessions/Tokens</a></p>
 		<p><a href="/crashlogs">Crash Logs</a></p>
 	{% else %}

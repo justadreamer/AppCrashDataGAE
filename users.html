@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/main.css" />
+	</head>
+  <body>
+	{% if isAuthorized and isSuperAdmin %}
+		<p><a href="/">Main</a></p>
+		<p><strong>Users:</strong></p>
+		<table cellspacing="0">
+			<tr><th>email</th><th>authorized</th><th>actions</th>
+			<tr><td>{{ superadmin }}</td><td>yes</td><td>&nbsp;</td>
+		{% for user in users %}
+			<tr><td>{{ user.email }}</td><td>{% if user.authorized %}yes{% else %}no{% endif %}</td>
+				<td>
+					<form action="/users" method="post" style="display:inline">
+						<input type="hidden" name="id" value="{{ user.key() }}" />
+						<input type="submit" name="delete" value="delete" style="display:inline" onclick="javascript:return confirm('Are you sure you would like to delete {{ user.email }}?')"/>
+						<input type="submit" name="switch" value="switch" style="display:inline" />
+					</form>
+				</td>
+		{% endfor %}
+		</table>
+		<br />
+		<br />
+		<form action="/users" method="post">
+				<input type="text" name="email" />
+				<input type="submit" value="Add">
+		</form>
+	{% endif %}
+  </body>
+</html>
+
+

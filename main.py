@@ -1,19 +1,3 @@
-#!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 import logging
 import webapp2
 import json
@@ -21,6 +5,7 @@ from google.appengine.api import users
 from google.appengine.ext import db
 import jinja2
 import os
+import settings
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
@@ -41,49 +26,44 @@ class Crashlog(db.Model):
 	error = db.StringProperty()
 	crashlog = db.TextProperty()
 	created = db.DateTimeProperty(auto_now_add=True)
-	
+
+class User(db.Model):
+	email = db.EmailProperty()
+	authorized = db.BooleanProperty()
+
 #RequestHandlers:
 class BaseHandler(webapp2.RequestHandler):
+	isSuperAdmin = False
+
+	def isUserSuperAdmin(self,user):
+		return user.email() == settings.superadmin
+
 	def isAuthorized(self):
-		logging.debug('called isAuthorized')
 		user = users.get_current_user()
 		if (not user):
 			self.authorize()
-			logging.debug('after call to authorize')	
 			return False
-
-		authorized = [
-			'eugene.dorfman@gmail.com',
-			'eugene.dorfman@postindustria.com',
-			'alexander.antonyuk@postindustria.com',
-			'oleg.kovtun@postindustria.com',
-			'millena.korneeva@postindustria.com',
-			'andrew.denisov@postindustria.com',
-			'stanislav.baranov@postindustria.com',
-			'vasiliy.dorozhinskiy@postindustria.com',
-			]
-		return user and user.email() in authorized
+		if self.isUserSuperAdmin(user):
+			self.isSuperAdmin = True
+		else:
+			userModel = User.gql("WHERE email = :1", db.Email(user.email())).get()
+		return self.isSuperAdmin or (userModel and userModel.authorized)
 
 	def authorize(self):
-		logging.debug('called authorize')
 		self.redirect(users.create_login_url(self.request.uri))
 	
 	def renderTemplate(self,template_name,template_values):
 		self.response.headers['Content-Type'] = 'text/html'
 		template_values['logoutUrl']=users.create_logout_url("/")
 		template_values['isAuthorized']=self.isAuthorized()
+		template_values['isSuperAdmin']=self.isSuperAdmin
 		template = jinja_environment.get_template(template_name)
 		self.response.out.write(template.render(template_values))
 	
 class MainHandler(BaseHandler):	
 	def get(self):
-		logging.debug('before self.isAuthorized')
-		isAuthorized = self.isAuthorized()
-		template_values={
-			'isAuthorized':isAuthorized
-		};
+		template_values = {}
 		self.renderTemplate('index.html',template_values)
-
 
 class SessionHandler(BaseHandler):
 	def post(self):
@@ -118,7 +98,9 @@ class CrashLogsGetHandler(BaseHandler):
 			else:
 				crashlogs_query = Crashlog.all().ancestor(default_key_crashlog).order('-created')
 				crashlogs = crashlogs_query.fetch(20)
+				cursor = crashlogs_query.cursor()
 				template_values = {
+					'cursor':cursor
 					'crashlogs':crashlogs
 				}
 				template = 'crashlogs.html'
@@ -136,11 +118,41 @@ class CrashLogHandler(BaseHandler):
 		crashlog.put()
 		self.response.out.write('Success')
 
-logging.getLogger().setLevel(logging.DEBUG)
+class UsersHandler(BaseHandler):
+	def get(self):
+		if self.isAuthorized() and self.isSuperAdmin:
+			users = User.all().run()
+			template_values = {
+				'users':users,
+				'superadmin':settings.superadmin
+			}
+			self.renderTemplate('users.html',template_values)
+		else:
+			self.redirect('/')
+
+	def post(self):
+		if self.isAuthorized() and self.isSuperAdmin:
+			key = self.request.get('id')
+			email = self.request.get('email')
+			if key:
+				user = User.get(key)
+				if self.request.get('delete'):
+					user.delete()
+				elif self.request.get('switch'):
+					user.authorized = not user.authorized
+					user.put()
+			elif email:
+				user = User(email=db.Email(email),authorized=True)
+				user.put()
+			self.redirect('/users')
+		else:
+			self.redirect('/') 
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler), 
 	('/sessions',SessionsGetHandler),
 	('/crashlogs',CrashLogsGetHandler),
 	('/crashlog.json',CrashLogHandler),
-	('/session.json',SessionHandler)
+	('/session.json',SessionHandler),
+	('/users',UsersHandler)
 ], debug=True)
