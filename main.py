@@ -98,9 +98,7 @@ class CrashLogsGetHandler(BaseHandler):
 			else:
 				crashlogs_query = Crashlog.all().ancestor(default_key_crashlog).order('-created')
 				crashlogs = crashlogs_query.fetch(20)
-				cursor = crashlogs_query.cursor()
 				template_values = {
-					'cursor':cursor
 					'crashlogs':crashlogs
 				}
 				template = 'crashlogs.html'
