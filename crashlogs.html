@@ -6,6 +6,10 @@
 	{% if isAuthorized %}
 		<p><a href="/">Main</a></p>
 		<p><a href="/sessions">Sessions</a></p>
+		<p><a href="/crashlogs">Crash Logs</a></p>
+		<br/>
+		<br/>
+		{% if cursor %}<a href="/crashlogs?cursor={{ cursor }}">Next Page</a>{% endif %}
 		<table cellspacing="0px">
 			<tr>
 				<th>Build</th>

@@ -5,7 +5,11 @@
 <body>
 	{% if isAuthorized %}
 		<p><a href="/">Main</a></p>
+		<p><a href="/sessions">Sessions</a></p>
 		<p><a href="/crashlogs">Crash Logs</a></p>
+		<br/>
+		<br/>
+		{% if cursor %}<a href="/sessions?cursor={{ cursor }}">Next Page</a>{% endif %}
 		<table cellspacing="0px">
 			<tr>
 				<th>Name</th>
@@ -22,7 +26,6 @@
 			{% endfor %}
  		{% endif %}
 		</table>
-			
 	{% else %}
 		<p>Unauthorized</p>
 	{% endif %}

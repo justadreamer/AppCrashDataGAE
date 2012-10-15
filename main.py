@@ -34,6 +34,7 @@ class User(db.Model):
 #RequestHandlers:
 class BaseHandler(webapp2.RequestHandler):
 	isSuperAdmin = False
+	perPage = 50
 
 	def isUserSuperAdmin(self,user):
 		return user.email() == settings.superadmin
@@ -80,8 +81,15 @@ class SessionsGetHandler(BaseHandler):
 		sessions = None
 		if isAuthorized:
 			sessions_query = Session.all().ancestor(default_key_sessions).order('-created')
-			sessions = sessions_query.fetch(20)
+			cursor = self.request.get('cursor')
+			if cursor:
+				sessions_query = sessions_query.with_cursor(cursor)
+				cursor = None
+			sessions = sessions_query.fetch(self.perPage)
+			if (len(sessions)==self.perPage):
+				cursor = sessions_query.cursor()
 			template_values = {
+				'cursor':cursor,
 				'sessions': sessions,
 	        }
 			self.renderTemplate('sessions.html',template_values)
@@ -97,9 +105,16 @@ class CrashLogsGetHandler(BaseHandler):
 				template = 'singlecrashlog.html'
 			else:
 				crashlogs_query = Crashlog.all().ancestor(default_key_crashlog).order('-created')
-				crashlogs = crashlogs_query.fetch(20)
+				cursor = self.request.get('cursor')
+				if cursor:
+					crashlogs_query = crashlogs_query.with_cursor(cursor)
+					cursor = None
+				crashlogs = crashlogs_query.fetch(self.perPage)
+				if len(crashlogs)==self.perPage:
+					cursor = crashlogs_query.cursor()
 				template_values = {
-					'crashlogs':crashlogs
+					'cursor' : cursor,
+					'crashlogs':crashlogs,
 				}
 				template = 'crashlogs.html'
 			self.renderTemplate(template,template_values)
@@ -154,3 +169,4 @@ app = webapp2.WSGIApplication([
 	('/session.json',SessionHandler),
 	('/users',UsersHandler)
 ], debug=True)
+logging.getLogger().setLevel(logging.DEBUG)

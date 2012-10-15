@@ -22,5 +22,5 @@ libraries:
 - name: jinja2
   version: latest
 
-settings:
-  superadmin: SUPERADMIN_EMAIL
+builtins:
+- remote_api: on
