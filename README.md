@@ -17,3 +17,8 @@ So the steps are as follows:
 5. Execute in the shell: "cp settings.py.example settings.py".
 6. Set an email of superadmin for your app in settings.py.
 7. Deploy your app to GAE using appcfg.py or a GUI app
+
+Example of client integration
+-------
+
+https://gist.github.com/3905607
