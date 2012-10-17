@@ -16,4 +16,4 @@ So the steps are as follows:
 4. Set your appname in the app.yaml.
 5. Execute in the shell: "cp settings.py.example settings.py".
 6. Set an email of superadmin for your app in settings.py.
-7. Deploy your app to GAE using appcfg.py or a GUI ap
+7. Deploy your app to GAE using appcfg.py or a GUI app
