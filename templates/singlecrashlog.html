@@ -3,7 +3,7 @@
 		<link rel="stylesheet" type="text/css" href="/main.css"/>
 	</head>
 <body>
-	{% if isAuthorized %}
+
 		<p><a href="/crashlogs">Back to crashlogs</a></p>
 		{% if crashlog %}
 				<p><b>Build:</b> {{ crashlog.build }}</p>
@@ -14,9 +14,7 @@
 				<pre>{{ crashlog.crashlog}}</pre>
 			</tr>
 		{% endif %}	
-	{% else %}
-		<p>Unauthorized</p>
-	{% endif %}
+
 	<p><a href="{{ logoutUrl }}">Logout</a></p>
 </body>
 </html>
