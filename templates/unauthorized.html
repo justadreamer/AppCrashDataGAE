@@ -1,9 +1,6 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="/main.css" />
-	</head>
-  <body>
+{% extends "base.html" %}
+    
+    {% block inner_part %}
 		<p>Sorry! You are not authorized for this application</p>
-	<p><a href="{{ logoutUrl }}">Logout</a></p>
-  </body>
-</html>
+
+    {% endblock %}

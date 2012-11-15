@@ -1,21 +1,19 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="/main.css" />
-	</head>
-  <body>
-
-		<p><a href="/">Main</a></p>
-		<p><strong>Users:</strong></p>
+{% extends "inner_part.html" %}
+	
+	{% block content %}
+		<p><a href="/migration">Migrate users</a> to attach them all roles</p>
 		<table cellspacing="0">
-			<tr><th>email</th><th>authorized</th><th>actions</th>
-			<tr><td>{{ superadmin }}</td><td>yes</td><td>&nbsp;</td>
+			<tr><th>email</th><th>authorized</th><th>role</th><th>actions</th>
 		{% for user in users %}
-			<tr><td>{{ user.email }}</td><td>{% if user.authorized %}yes{% else %}no{% endif %}</td>
+			<tr><td>{{ user.email }}</td>
+				<td>{% if user.authorized %}yes{% else %}no{% endif %}</td>
+				<td>{{ user.role.name }}</td>
 				<td>
 					<form action="/users" method="post" style="display:inline">
 						<input type="hidden" name="id" value="{{ user.key() }}" />
 						<input type="submit" name="delete" value="delete" style="display:inline" onclick="javascript:return confirm('Are you sure you would like to delete {{ user.email }}?')"/>
-						<input type="submit" name="switch" value="switch" style="display:inline" />
+						<input type="submit" name="switch_auth" value="switch authorization" style="display:inline" />
+						<input type="submit" name="switch_role" value="switch a role" style="display:inline" />
 					</form>
 				</td>
 		{% endfor %}
@@ -27,7 +25,5 @@
 				<input type="submit" value="Add">
 		</form>
 
-  </body>
-</html>
-
+	{% endblock %}
 

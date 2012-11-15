@@ -2,14 +2,14 @@
 
 import logging
 import webapp2
-from models import Session, Crashlog, User
-from utils import login_required, admin_required, requiring
+from models import Session, Crashlog, User, UserRole
+from utils import requiring
 import json
 from google.appengine.api import users
 from google.appengine.ext import db
 import jinja2
 import os
-import settings
+from settings import ROLE_USER, ROLE_ADMIN
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
@@ -25,30 +25,12 @@ class BaseHandler(webapp2.RequestHandler):
 		super(BaseHandler, self).__init__(*args, **kwargs)
 		# if leave these attributes above then they will be shared among
 		# all instances of this class. Not crucial but not good either
-		# self.isAuthorized = False
 		self.isSuperAdmin = False
 		self.perPage = 50
 
 	def isUserSuperAdmin(self, user):
 		return user.email() == settings.superadmin
 
-# USE! @login_required and @admin_required decorators enstead 
-# of methods bellow
-
-	# def isAuthorized(self):
-	# 	user = users.get_current_user()
-	# 	if (not user):
-	# 		self.authorize()
-	# 		return False
-	# 	if self.isUserSuperAdmin(user):
-	# 		self.isSuperAdmin = True
-	# 	else:
-	# 		userModel = User.gql("WHERE email = :1", db.Email(user.email())).get()
-	# 	return self.isSuperAdmin or (userModel and userModel.authorized)
-
-	# def authorize(self):
-	# 	self.redirect(users.create_login_url(self.request.uri))
-	
 	def renderTemplate(self,template_name,template_values):
 		self.response.headers['Content-Type'] = 'text/html; charset=iso-8859-1'
 		template_values['logoutUrl']=users.create_logout_url("/")
@@ -57,7 +39,7 @@ class BaseHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(template_values))
 	
 class MainHandler(BaseHandler):
-	@requiring('user')
+	@requiring(ROLE_USER)
 	def get(self):
 		template_values = {}
 		self.renderTemplate('index.html',template_values)
@@ -73,7 +55,7 @@ class SessionHandler(BaseHandler):
 		self.response.out.write('Success')
 
 class SessionsGetHandler(BaseHandler):
-	@requiring('user')
+	@requiring(ROLE_USER)
 	def get(self):
 		sessions = None
 		sessions_query = Session.all().order('-created')
@@ -91,7 +73,7 @@ class SessionsGetHandler(BaseHandler):
 		self.renderTemplate('sessions.html',template_values)
 
 class CrashLogsGetHandler(BaseHandler):
-	@requiring('user')
+	@requiring(ROLE_USER)
 	def get(self):
 		key_value = self.request.get('id')
 		if key_value:
@@ -142,23 +124,65 @@ class UsersHandler(BaseHandler):
 		key = self.request.get('id')
 		email = self.request.get('email')
 		if key:
+			# edit the user with provided key
 			user = User.get(key)
 			if self.request.get('delete'):
 				user.delete()
-			elif self.request.get('switch'):
+			elif self.request.get('switch_auth'):
 				user.authorized = not user.authorized
 				user.put()
+			elif self.request.get('switch_role'):
+				if user.role:
+					roles = UserRole.all().fetch(limit=2)
+					new_role = lambda x: roles[0] if roles[0].name != x.name else roles[1]
+					user.role = new_role(user.role)
+				else:
+					user.role = UserRole.all().filter("name =", ROLE_USER).get()
+				user.put()
 		elif email:
-			user = User(email=db.Email(email), authorized=True)
+			# create a new user
+			user = User(email=db.Email(email), authorized=True,
+					role=UserRole.all().filter("name =", ROLE_USER).get())
 			user.put()
 		self.redirect('/users')
 
+def create_role(role_name):
+	if not UserRole.all().filter("name =", role_name).get():
+		UserRole(name=role_name).put()
+
+class MigrationHandler(BaseHandler):
+	@requiring('app_owner')
+	def get(self):
+		# create UserRole objects in DB
+		for role in (ROLE_USER, ROLE_ADMIN):
+			create_role(role)
+		# update users 
+		report = []
+
+		user_role = UserRole.all().filter("name =", ROLE_USER).get()
+		if user_role:
+			for each in User.all().run():
+				if each.role is None:
+					each.role = user_role
+					report.append({'user': each.email, 'role.name': user_role.name, 'user.role.name': each.role.name}) # 
+					each.put() 
+			message = "Migration is finished"
+		else:
+			# failed to get a UserRole instance
+			message = "User role: %s" % str(user_role)
+
+		template_values = {
+			'message':message,
+			'report': str(report)}
+		self.renderTemplate('message.html',template_values)
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler), 
-	('/sessions',SessionsGetHandler),
-	('/crashlogs',CrashLogsGetHandler),
-	('/crashlog.json',CrashLogHandler),
-	('/session.json',SessionHandler),
-	('/users',UsersHandler)
+	('/sessions', SessionsGetHandler),
+	('/crashlogs', CrashLogsGetHandler),
+	('/crashlog.json', CrashLogHandler),
+	('/session.json', SessionHandler),
+	('/migration', MigrationHandler),
+	('/users', UsersHandler)
 ], debug=True)
 logging.getLogger().setLevel(logging.DEBUG)

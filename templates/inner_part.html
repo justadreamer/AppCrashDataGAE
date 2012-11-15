@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+    
+    {% block inner_part %}
+
+        <p><a href="/">Main</a></p>
+        <p><a href="/sessions">Sessions/Tokens</a></p>
+        <p><a href="/crashlogs">Crash Logs</a></p>
+        {% if isSuperAdmin %}
+            <p><a href="/users">Users</a></p>
+        {% endif %}
+
+        {% block content %} {% endblock %}
+
+    {% endblock %}

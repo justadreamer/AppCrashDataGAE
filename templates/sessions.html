@@ -1,12 +1,6 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="/main.css"/>
-	</head>
-<body>
-
-		<p><a href="/">Main</a></p>
-		<p><a href="/sessions">Sessions</a></p>
-		<p><a href="/crashlogs">Crash Logs</a></p>
+{% extends "inner_part.html" %}
+	
+	{% block content %}
 		<br/>
 		<br/>
 		{% if cursor %}<a href="/sessions?cursor={{ cursor }}">Next Page</a>{% endif %}
@@ -26,7 +20,4 @@
 			{% endfor %}
  		{% endif %}
 		</table>
-
-	<p><a href="{{ logoutUrl }}">Logout</a></p>
-</body>
-</html>
+	{% endblock %}

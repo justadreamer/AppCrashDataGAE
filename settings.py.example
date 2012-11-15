@@ -1,1 +1,6 @@
+# -*- coding: utf-8 -*-
+
 superadmin = "SUPERADMIN_EMAIL"
+
+ROLE_USER = 'user'
+ROLE_ADMIN = 'admin'

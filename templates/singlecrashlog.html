@@ -1,10 +1,7 @@
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="/main.css"/>
-	</head>
-<body>
+{% extends "inner_part.html" %}
+	
+	{% block content %}
 
-		<p><a href="/crashlogs">Back to crashlogs</a></p>
 		{% if crashlog %}
 				<p><b>Build:</b> {{ crashlog.build }}</p>
 				<p><b>Device:</b> {{ crashlog.device }}</p>
@@ -15,6 +12,4 @@
 			</tr>
 		{% endif %}	
 
-	<p><a href="{{ logoutUrl }}">Logout</a></p>
-</body>
-</html>
+	{% endblock %}
