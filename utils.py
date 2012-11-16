@@ -9,11 +9,11 @@ from settings import ROLE_USER, ROLE_ADMIN
 
 def requiring(required_role):
     """A decorator (actually it's a creator of a decorator) which takes arguments like 
-        'user', 'admin' and 'app_owner' and require that a user: to be logged in and 
-        uathorized, to be logged in and given extra permissions, to be logged in and 
+        'user', 'admin' and 'app_owner' and requires a user to be logged in and 
+        authorized, or to be logged in and given extra permissions, or to be logged in and 
         an admin for this application - correspondingly, to access a handler. 
 
-        To use it, decorate your get()/post() method like this::
+        To use it, decorate your get()/post() method like this:
 
             @requiring('user')
             def get(self):
@@ -42,8 +42,8 @@ def requiring(required_role):
             
             # the rest of variants are ROLE_USER or ROLE_ADMIN
             else:
-                # if user is authanticated - check permissions to access our content
-                # (user can be authanticated because GAE easily gives access to all google users)
+                # if user is authenticated - check permissions to access our content
+                # (user can be authenticated because GAE easily gives access to all google users)
                 user_in_my_list = User.all().filter("email =",db.Email(user.email())).get()
                 # user presents in our DB, has appropriate role and property authorized is TRUE 
                 # (an application owner can switch it on/off)

@@ -20,7 +20,7 @@ class Crashlog(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
 
 class UserRole(db.Model):
-    """ To get all users for some particulear role use following syntaxis:
+    """ To get all users for some particular role use the following syntax:
         all_user_for_this_role = UserRole().user_set
 
         Another example:
