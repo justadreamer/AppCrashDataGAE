@@ -4,7 +4,7 @@
 from google.appengine.api import users
 from google.appengine.ext import db
 from models import User, UserRole
-from settings import ROLE_USER, ROLE_ADMIN
+from settings import APP_OWNER, ROLE_USER, ROLE_ADMIN
 
 
 def requiring(required_role):
@@ -29,7 +29,7 @@ def requiring(required_role):
                 return self.redirect(users.create_login_url(self.request.url))
             
             self.isSuperAdmin = users.is_current_user_admin()
-            if required_role == 'app_owner':
+            if required_role == APP_OWNER:
                 if not self.isSuperAdmin:
                     if self.request.method != 'GET':
                         self.abort(403, detail='You don\'t have access to this resource. Log in as admin!')

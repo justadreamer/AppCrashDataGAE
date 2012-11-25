@@ -21,7 +21,7 @@ class Crashlog(db.Model):
 
 class UserRole(db.Model):
     """ To get all users for some particular role use the following syntax:
-        all_user_for_this_role = UserRole().user_set
+        all_user_for_this_role = UserRole().users
 
         Another example:
         my_boy = UserRole().users.filter('name =', 'Darth Vader') # to filter users
@@ -38,3 +38,9 @@ class User(db.Model):
     # (one UserRole - to - many User-s)
     role = db.ReferenceProperty(UserRole, collection_name='users')
 
+class FallenApp(object):
+    """FallenApp is a model for application which sends
+        us crashlogs"""
+    name = db.StringProperty(required=True)
+    auth_key = db.StringProperty(required=True)
+        

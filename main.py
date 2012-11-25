@@ -23,13 +23,8 @@ class BaseHandler(webapp2.RequestHandler):
 	def __init__(self, *args, **kwargs):
 		# call the ancestor class's __init__()
 		super(BaseHandler, self).__init__(*args, **kwargs)
-		# if leave these attributes above then they will be shared among
-		# all instances of this class. Not crucial but not good either
 		self.isSuperAdmin = False
 		self.perPage = 50
-
-	def isUserSuperAdmin(self, user):
-		return user.email() == settings.superadmin
 
 	def renderTemplate(self,template_name,template_values):
 		self.response.headers['Content-Type'] = 'text/html; charset=iso-8859-1'
@@ -79,7 +74,7 @@ class CrashLogsGetHandler(BaseHandler):
 		if key_value:
 			template_values = {
 				'crashlog':Crashlog.get(key_value)
-			}
+				}
 			template = 'singlecrashlog.html'
 		else:
 			crashlogs_query = Crashlog.all().order('-created')
@@ -93,7 +88,7 @@ class CrashLogsGetHandler(BaseHandler):
 			template_values = {
 				'cursor' : cursor,
 				'crashlogs':crashlogs,
-			}
+				}
 			template = 'crashlogs.html'
 		self.renderTemplate(template,template_values)
 
@@ -182,7 +177,8 @@ app = webapp2.WSGIApplication([
 	('/crashlogs', CrashLogsGetHandler),
 	('/crashlog.json', CrashLogHandler),
 	('/session.json', SessionHandler),
-	('/migration', MigrationHandler),
-	('/users', UsersHandler)
+	# ('/migration', MigrationHandler),
+	('/users', UsersHandler),
+	('/users/migration', MigrationHandler),
 ], debug=True)
 logging.getLogger().setLevel(logging.DEBUG)

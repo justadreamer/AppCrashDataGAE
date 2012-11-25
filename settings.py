@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-superadmin = "SUPERADMIN_EMAIL"
+APP_OWNER = 'app_owner'
 
 ROLE_USER = 'user'
 ROLE_ADMIN = 'admin'
