@@ -3,7 +3,7 @@
 
 from google.appengine.api import users
 from google.appengine.ext import db
-from models import User, UserRole
+from models import User, UserRole, FallenApp
 from settings import APP_OWNER, ROLE_USER, ROLE_ADMIN
 
 
@@ -58,3 +58,26 @@ def requiring(required_role):
 
         return role_checker
     return dcrtr_itself
+
+
+def requiring_app_key(handler_method):
+    """A decorator which verifies if this request was made by authorized application 
+        and if so - allows the request to access a handler. Assumed that this decorator
+        is used only for post-requests
+
+        To use it, decorate your post() method like this:
+
+            @requiring_app_key
+            def post(self):
+                ...
+    """
+    def wrapper(self, *args, **kwargs):
+        a_key = self.request.get('auth_key')
+        if not a_key:
+            app_entity = FallenApp.all().filter("auth_key =", a_key).get()
+            if app_entity:
+                return handler_method(self, app_entity, *args, **kwargs)
+
+        self.abort(403, detail='You don\'t have access to this resource.')            
+
+    return wrapper

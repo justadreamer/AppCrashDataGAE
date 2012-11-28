@@ -38,9 +38,9 @@ class User(db.Model):
     # (one UserRole - to - many User-s)
     role = db.ReferenceProperty(UserRole, collection_name='users')
 
-class FallenApp(object):
+class FallenApp(db.Model):
     """FallenApp is a model for application which sends
         us crashlogs"""
     name = db.StringProperty(required=True)
-    auth_key = db.StringProperty(required=True)
-        
+    auth_key = db.StringProperty(required=True, default='Not set')
+    description = db.TextProperty()
