@@ -2,7 +2,9 @@
   
   {% block content %}
     <br>
-		<p>{{ message }}</p><br>
-    <p>{{ report }}</p><br>
+	<p>{{ message }}</p><br>
+    {% for line in report %}
+        {{ line }}<br>
+    {% endfor %}<br>
         
   {% endblock %}

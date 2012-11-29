@@ -3,13 +3,14 @@
 import logging
 import webapp2
 from models import Session, Crashlog, User, UserRole, FallenApp
-from utils import requiring, requiring_app_key
+from utils.users import requiring, requiring_app_key
 import json
 from google.appengine.api import users
 from google.appengine.ext import db
 import jinja2
 import os
 import settings
+from utils import helpers
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
@@ -150,23 +151,20 @@ class UsersHandler(BaseHandler):
 			user.put()
 		self.redirect('/users')
 
-
-
-def create_entity_by_name(entity_cls, entity_name):
-	if not entity_cls.all().filter("name =", entity_name).get():
-		instance = entity_cls(name=entity_name)
-		instance.put()
-		return instance
-
-def create_role_if_doesnt_exist(role_name):
-	return create_entity_by_name(UserRole, role_name)
+class ApplicationsHandler(BaseHandler):
+	@requiring(settings.ROLE_USER)
+	def get(self):
+		apps = FallenApp.all().run()
+		apps_list = [{'name':app.name, 'id':app.key()} for app in apps]
+		self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+		self.response.out.write(json.dumps(apps_list))
 
 class UsersMigrationHandler(BaseHandler):
 	@requiring(settings.APP_OWNER)
 	def get(self):
 		# create UserRole objects in DB
 		for role in (settings.ROLE_USER, settings.ROLE_ADMIN):
-			create_role_if_doesnt_exist(role)
+			helpers.create_role_if_doesnt_exist(role)
 		# update users 
 		report = []
 
@@ -184,52 +182,14 @@ class UsersMigrationHandler(BaseHandler):
 
 		template_values = {
 			'message':message,
-			'report': str(report)}
+			'report': [str(line) for line in report]}
 		self.renderTemplate('message.html',template_values)
-
-
-
-def create_app_model_if_doesnt_exist(app_name):
-	return create_entity_by_name(FallenApp, app_name)
-
-def copy_obj_with_changes(original, delete_original=True, **extra_args):
-	"""Originaly this function was aimed for changing a parent for 
-		an entity. But in proccess of creating it the decision was
-		made to expand a field of applicating.
-
-		Now it copies fields from original to a new entity and
-		then deletes the original entity unless it's said not 
-		to do it. You can pass parameter parent to change it in
-		a new entity.
-
-		Params:
-		original: the entity to copy/move
-		delete_original: boolean parameter to define whether to delete
-			the original entity or not (default value is True)
-		extra_args: Keyword arguments to override from the cloned 
-			entity and pass to the constructor.
-
-		Returns:
-    	A cloned, possibly modified, copy of entity original.
-	"""
-
-	klass = original.__class__
-	props = dict((k, v.__get__(original, klass)) for k, v in klass.properties().iteritems())
-	props.update(extra_args)
-
-	new_entity = klass(**props)
-	if delete_original: original.delete()
-	new_entity.put()
-
-	return new_entity
-
-
 
 class CrashlogsMigrationHandler(BaseHandler):
 	@requiring(settings.APP_OWNER)
 	def get(self):
 		# create DefaultApplication object in DB
-		create_app_model_if_doesnt_exist(settings.DEFAULT_APP)
+		helpers.create_app_model_if_doesnt_exist(settings.DEFAULT_APP)
 		default_app = FallenApp.all().filter("name =", settings.DEFAULT_APP).get()
 		
 		success_counter = 0 # number of successfully migrated crashlog entities
@@ -243,7 +203,7 @@ class CrashlogsMigrationHandler(BaseHandler):
 			parent_model = each.parent()
 			if not parent_model or parent_model.kind() != 'FallenApp':
 				need_to_be_migrated += 1
-				if copy_obj_with_changes(original=each, parent=default_app):
+				if helpers.copy_obj_with_changes(original=each, parent=default_app):
 					success_counter += 1
 				else:
 					failed_counter += 1
@@ -251,10 +211,10 @@ class CrashlogsMigrationHandler(BaseHandler):
 		# # failed to get a UserRole instance
 		# message = "User role: %s" % str(user_role)
 
-		rep = """migrated: %s, not migrated: %s, \n
-			were considered to be migrated: %s, \n 
-			total number of verified crashlogs: %s""" % (success_counter, failed_counter,
-														need_to_be_migrated, total)
+		rep = ["migrated: %s, not migrated: %s," % (success_counter, failed_counter),
+			   "were considered to be migrated: %s," %  need_to_be_migrated,
+			   "total number of verified crashlogs: %s" % total,
+			  ]
 
 		template_values = {
 			'message':message,
@@ -267,9 +227,9 @@ app = webapp2.WSGIApplication([
 	('/crashlogs', CrashLogsGetHandler),
 	('/crashlog.json', CrashLogHandler),
 	('/session.json', SessionHandler),
-	# ('/migration', UsersMigrationHandler),
 	('/users', UsersHandler),
 	('/users/migration', UsersMigrationHandler),
 	('/crashlogs/migration', CrashlogsMigrationHandler),
+	('/applications', ApplicationsHandler),
 ], debug=settings.DEBUG)
 logging.getLogger().setLevel(logging.DEBUG)
