@@ -31,7 +31,7 @@ class BaseHandler(webapp2.RequestHandler):
 		self.response.headers['Content-Type'] = 'text/html; charset=iso-8859-1'
 		template_values['logoutUrl']=users.create_logout_url("/")
 		template_values['isSuperAdmin']=self.isSuperAdmin
-		template_values['report']=[]
+		template_values.setdefault('report', [])
 		template = jinja_environment.get_template(template_name)
 		self.response.out.write(template.render(template_values))
 	
@@ -42,7 +42,7 @@ class MainHandler(BaseHandler):
 		self.renderTemplate('index.html',template_values)
 
 class SessionHandler(BaseHandler):
-	# TODO: create and place here sort of @id_required decorator
+	@requiring_app_key
 	def post(self):
 		data = json.loads(self.request.body)
 		session = Session()
