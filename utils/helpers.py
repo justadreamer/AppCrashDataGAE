@@ -50,3 +50,6 @@ def copy_obj_with_changes(original, delete_original=True, **extra_args):
 
     return new_entity
 
+def set_or_default(target, value):
+    if value:
+        target = value

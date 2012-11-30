@@ -42,5 +42,5 @@ class FallenApp(db.Model):
     """FallenApp is a model for application which sends
         us crashlogs"""
     name = db.StringProperty(required=True)
-    auth_key = db.StringProperty(required=True, default='Not set')
-    description = db.TextProperty()
+    auth_key = db.StringProperty(default='Not set')
+    description = db.TextProperty(default='')

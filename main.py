@@ -31,6 +31,7 @@ class BaseHandler(webapp2.RequestHandler):
 		self.response.headers['Content-Type'] = 'text/html; charset=iso-8859-1'
 		template_values['logoutUrl']=users.create_logout_url("/")
 		template_values['isSuperAdmin']=self.isSuperAdmin
+		template_values['report']=[]
 		template = jinja_environment.get_template(template_name)
 		self.response.out.write(template.render(template_values))
 	
@@ -78,6 +79,7 @@ class CrashLogsGetHandler(BaseHandler):
 				}
 			template = 'singlecrashlog.html'
 		else:
+			applications = FallenApp.all().run()
 			app_id_value = self.request.get('app_id')
 			app = None
 			if app_id_value:
@@ -97,6 +99,8 @@ class CrashLogsGetHandler(BaseHandler):
 				'cursor' : cursor,
 				'crashlogs':crashlogs,
 				'app_name': (lambda x: x.name if x else 'All applications')(app),
+				'applications': applications,
+				'selected': (lambda x: x.key() if x else 'All applications')(app),
 				}
 			template = 'crashlogs.html'
 		self.renderTemplate(template,template_values)
@@ -138,8 +142,10 @@ class UsersHandler(BaseHandler):
 				user.put()
 			elif self.request.get('switch_role'):
 				if user.role:
-					roles = UserRole.all().fetch(limit=2)
+					roles = UserRole.all().fetch()
+					# create a short funcion to change a role
 					new_role = lambda x: roles[0] if roles[0].name != x.name else roles[1]
+					# use this function
 					user.role = new_role(user.role)
 				else:
 					user.role = UserRole.all().filter("name =", settings.ROLE_USER).get()
@@ -154,10 +160,38 @@ class UsersHandler(BaseHandler):
 class ApplicationsHandler(BaseHandler):
 	@requiring(settings.ROLE_USER)
 	def get(self):
-		apps = FallenApp.all().run()
-		apps_list = [{'name':app.name, 'id':app.key()} for app in apps]
-		self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
-		self.response.out.write(json.dumps(apps_list))
+		apps = FallenApp.all().order('-name').run()
+		# apps_list = [{'name':app.name, 'id':app.key()} for app in apps]
+		# self.response.headers.add_header('content-type', 'application/json', charset='utf-8')
+		# self.response.out.write(json.dumps(apps_list))
+		template_values = {
+			'applications':apps,
+			}
+		self.renderTemplate('applications.html', template_values)
+
+	@requiring(settings.APP_OWNER)
+	def post(self):
+		key = self.request.get('id')
+		name = self.request.get('name')
+		if key:
+			# edit or delete the application with provided key
+			app = FallenApp.get(key)
+			if not app: self.renderTemplate('message.html',{'message': "No such an application"})
+			if self.request.get('delete'):
+				app.delete()
+			elif self.request.get('edit_app'):
+				self.renderTemplate('edit_app.html', {'app': app})
+				return
+			elif self.request.get('save_app'):
+				app.name = self.request.get('name', app.name)
+				app.auth_key = self.request.get('auth_key', '')
+				app.description = self.request.get('description', '')
+				app.put()
+		elif name:
+			# create a new application
+			app = FallenApp(name=name)
+			app.put()
+		self.redirect('/applications')
 
 class UsersMigrationHandler(BaseHandler):
 	@requiring(settings.APP_OWNER)
@@ -231,5 +265,5 @@ app = webapp2.WSGIApplication([
 	('/users/migration', UsersMigrationHandler),
 	('/crashlogs/migration', CrashlogsMigrationHandler),
 	('/applications', ApplicationsHandler),
-], debug=settings.DEBUG)
+	], debug=settings.DEBUG)
 logging.getLogger().setLevel(logging.DEBUG)

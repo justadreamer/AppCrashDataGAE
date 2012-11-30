@@ -1,0 +1,16 @@
+{% extends "inner_part.html" %}
+    
+    {% block content %}
+        
+        <br />
+        <br />
+        <form action="/applications" method="post">
+                <input type="hidden" name="id" value="{{ app.key() }}" />
+                <input type="text" name="name"  value="{{ app.name }}" />
+                <input type="text" name="auth_key" size="100"  value="{{ app.auth_key }}" />
+                <textarea name="description" rows="10" cols="45">{{ app.description }}</textarea>
+                <input type="submit" name="save_app" value="Save">
+        </form>
+
+    {% endblock %}
+

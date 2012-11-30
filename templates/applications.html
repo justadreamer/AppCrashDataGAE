@@ -1,0 +1,28 @@
+{% extends "inner_part.html" %}
+	
+	{% block content %}
+		
+		<table cellspacing="0">
+			<tr><th>name</th><th>authorization key</th><th>description</th><th>actions</th>
+			{% for app in applications %}
+				<tr><td>{{ app.name }}</td>
+					<td>{{ app.auth_key }}</td>
+					<td>{{ app.description }}</td>
+					<td>
+						<form action="/applications" method="post" style="display:inline">
+							<input type="hidden" name="id" value="{{ app.key() }}" />
+							<input type="submit" name="delete" value="delete" style="display:inline" onclick="javascript:return confirm('Are you sure you would like to delete {{ app.name }}?')"/>
+							<input type="submit" name="edit_app" value="edit" style="display:inline" />
+						</form>
+					</td>
+			{% endfor %}
+		</table>
+		<br />
+		<br />
+		<form action="/applications" method="post">
+				<input type="text" name="name" />
+				<input type="submit" value="Add">
+		</form>
+
+	{% endblock %}
+

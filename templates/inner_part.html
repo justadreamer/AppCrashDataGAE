@@ -2,13 +2,18 @@
     
     {% block inner_part %}
 
-        <p><a href="/">Main</a></p>
-        <p><a href="/sessions">Sessions/Tokens</a></p>
-        <p><a href="/crashlogs">Crash Logs</a></p>
+        <ul id="navigation">
+        <li><a href="/">Main</a></li>
+        <li><a href="/sessions">Sessions/Tokens</a></li>
+        <li><a href="/crashlogs">Crash Logs</a></li>
         {% if isSuperAdmin %}
-            <p><a href="/users">Users</a></p>
+            <li><a href="/users">Users</a></li>
+            <li><a href="/applications">Applications</a></li>
         {% endif %}
+        </ul>
 
         {% block content %} {% endblock %}
 
     {% endblock %}
+
+    

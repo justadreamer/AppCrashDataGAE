@@ -2,6 +2,15 @@
 	
 	{% block content %}
 		<br/>
+		<form method="get" action="/crashlogs">
+			<select name="selectionApplications"> 
+				<option value="" {% if not selected %} selected {% endif %}>All applications</option>
+				{% for app in applications %}
+			  		<option value="{{ app.key() }}" {% if app.key() ==  selected %} selected {% endif %}>{{ app.name }}</option>
+			  	{% endfor %}
+			</select>
+		    <input type="submit" value="Filter">
+		</form>
 		<br/>
 		{% if cursor %}<a href="/crashlogs?cursor={{ cursor }}">Next Page</a>{% endif %}
 		<table cellspacing="0px">
