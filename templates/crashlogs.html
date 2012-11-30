@@ -3,7 +3,7 @@
 	{% block content %}
 		<br/>
 		<form method="get" action="/crashlogs">
-			<select name="selectionApplications"> 
+			<select name="app_id"> 
 				<option value="" {% if not selected %} selected {% endif %}>All applications</option>
 				{% for app in applications %}
 			  		<option value="{{ app.key() }}" {% if app.key() ==  selected %} selected {% endif %}>{{ app.name }}</option>

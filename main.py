@@ -242,8 +242,6 @@ class CrashlogsMigrationHandler(BaseHandler):
 				else:
 					failed_counter += 1
 		message = "Migration is finished"
-		# # failed to get a UserRole instance
-		# message = "User role: %s" % str(user_role)
 
 		rep = ["migrated: %s, not migrated: %s," % (success_counter, failed_counter),
 			   "were considered to be migrated: %s," %  need_to_be_migrated,
