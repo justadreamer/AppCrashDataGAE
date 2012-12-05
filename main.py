@@ -25,7 +25,7 @@ class BaseHandler(webapp2.RequestHandler):
 		# call the ancestor class's __init__()
 		super(BaseHandler, self).__init__(*args, **kwargs)
 		self.isSuperAdmin = False
-		self.perPage = 50
+		self.perPage = 5
 
 	def renderTemplate(self,template_name,template_values):
 		self.response.headers['Content-Type'] = 'text/html; charset=iso-8859-1'
@@ -84,26 +84,31 @@ class CrashLogsGetHandler(BaseHandler):
 			app = None
 			if app_id_value:
 				app = FallenApp.get(app_id_value)
-			if app:
-				crashlogs_query = Crashlog.all().ancestor(app).order('-created')
-			else:
-				crashlogs_query = Crashlog.all().order('-created')
-			cursor = self.request.get('cursor')
-			if cursor:
-				crashlogs_query = crashlogs_query.with_cursor(cursor)
-				cursor = None
-			crashlogs = crashlogs_query.fetch(self.perPage)
-			if len(crashlogs)==self.perPage:
-				cursor = crashlogs_query.cursor()
+			
+			# if app:
+			# 	crashlogs_query = Crashlog.all().ancestor(app).order('-created')
+			# else:
+			# 	crashlogs_query = Crashlog.all().order('-created')
+			# cursor = self.request.get('cursor')
+			# if cursor:
+			# 	crashlogs_query = crashlogs_query.with_cursor(cursor)
+			# 	cursor = None
+			# crashlogs = crashlogs_query.fetch(self.perPage)
+			# if len(crashlogs)==self.perPage:
+			# 	cursor = crashlogs_query.cursor()
 			template_values = {
-				'cursor' : cursor,
-				'crashlogs':crashlogs,
 				'app_name': (lambda x: x.name if x else 'All applications')(app),
 				'applications': applications,
 				'selected': (lambda x: x.key() if x else 'All applications')(app),
 				}
+			template_values.update(helpers.give_a_page(entity_cls=Crashlog, 
+													   next=self.request.get('next'), 
+													   previous=self.request.get('previous'), 
+													   parent=app, 
+													   page_size=self.perPage))
+
 			template = 'crashlogs.html'
-		self.renderTemplate(template,template_values)
+		self.renderTemplate(template, template_values)
 
 class CrashLogHandler(BaseHandler):
 	@requiring_app_key

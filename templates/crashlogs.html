@@ -12,7 +12,9 @@
 		    <input type="submit" value="Filter">
 		</form>
 		<br/>
-		{% if cursor %}<a href="/crashlogs?cursor={{ cursor }}">Next Page</a>{% endif %}
+		{% if previous %}<a href="/crashlogs?previous={{ previous }}">Previous Page</a>{% endif %}
+		&nbsp;
+		{% if next %}<a href="/crashlogs?next={{ next }}">Next Page</a>{% endif %}
 		<table cellspacing="0px">
 			<tr>
 				<th>Build</th>
@@ -21,8 +23,8 @@
 				<th>Error</th>
 				<th>Created</th>
 			</tr>
- 		{% if crashlogs %}
-			{% for crashlog in crashlogs %}
+ 		{% if entities %}
+			{% for crashlog in entities %}
 				<tr>
 					<td>{{ crashlog.build }}</td>
  					<td>{{ crashlog.device }}</td>

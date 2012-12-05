@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from models import UserRole, FallenApp
+import base64, _strptime, datetime
+from settings import TIMEFORMAT
 
 def create_entity_by_name(entity_cls, entity_name):
     """Create an entity in the DB by with gevin name
@@ -53,3 +55,59 @@ def copy_obj_with_changes(original, delete_original=True, **extra_args):
 def set_or_default(target, value):
     if value:
         target = value
+
+def give_next_page(query, bookmark=None, page_size=50):
+    bookmark_date = None
+    
+    if bookmark: # It is base64 datetime string
+        bookmark_date = datetime.datetime.strptime(base64.b64decode(bookmark), TIMEFORMAT) 
+        query.filter('created <=', bookmark_date)
+    query.order('-created')                        
+    entities = query.fetch(page_size+1)
+
+    next_link = None # see next conditional statement, next_link can be changed
+    previous_link = base64.b64encode(bookmark_date.strftime(TIMEFORMAT)) if bookmark_date else None
+
+    if len(entities) == page_size + 1:
+        next_link = base64.b64encode(entities[-1].created.strftime(TIMEFORMAT))
+        entities = entities[:page_size]
+
+    template_values = {}
+    template_values['next'] = next_link
+    template_values['previous'] = previous_link
+    template_values['entities'] = entities
+
+    return template_values
+
+def give_previous_page(query, bookmark=None, page_size=50):
+    bookmark_date = datetime.datetime.strptime(base64.b64decode(bookmark), TIMEFORMAT) 
+    query.filter('created >', bookmark_date)
+    query.order('created')                        
+    entities = query.fetch(page_size+1)
+
+    next_link = base64.b64encode(bookmark_date.strftime(TIMEFORMAT)) if bookmark_date else None 
+    previous_link = None # see next conditional statement, previous_link can be changed
+
+    if len(entities) == page_size + 1:
+        entities = entities[:page_size]
+        previous_link = base64.b64encode(entities[-1].created.strftime(TIMEFORMAT))
+
+    # always reverse a list of entities
+    entities.reverse()
+
+    template_values = {}
+    template_values['next'] = next_link
+    template_values['previous'] = previous_link
+    template_values['entities'] = entities
+
+    return template_values
+
+def give_a_page(entity_cls, next=None, previous=None, parent=None, page_size=50):
+    query = entity_cls.all()
+    if parent:
+        query.ancestor(parent)
+
+    if previous:
+        return give_previous_page(query, previous, page_size)
+    else:
+        return give_next_page(query, next, page_size)

@@ -8,3 +8,5 @@ ROLE_USER = 'user'
 ROLE_ADMIN = 'admin'
 
 DEFAULT_APP = 'Default Application'
+
+TIMEFORMAT = '%Y-%m-%d %H:%M:%S.%f'
