@@ -3,15 +3,17 @@
 	{% block content %}
 		<br/>
 		<br/>
-		{% if cursor %}<a href="/sessions?cursor={{ cursor }}">Next Page</a>{% endif %}
+		{% if previous %}<a href="/sessions?previous={{ previous }}">Previous Page</a>{% endif %}
+		&nbsp;
+		{% if next %}<a href="/sessions?next={{ next }}">Next Page</a>{% endif %}
 		<table cellspacing="0px">
 			<tr>
 				<th>Name</th>
  				<th>Token</th>
 				<th>Created</th>
 			</tr>
- 		{% if sessions %}
-			{% for session in sessions %}
+ 		{% if entities %}
+			{% for session in entities %}
 				<tr>
 					<td>{{ session.name }}</td>
  					<td>{{ session.token }}</td>

@@ -25,7 +25,7 @@ class BaseHandler(webapp2.RequestHandler):
 		# call the ancestor class's __init__()
 		super(BaseHandler, self).__init__(*args, **kwargs)
 		self.isSuperAdmin = False
-		self.perPage = 5
+		self.perPage = 50
 
 	def renderTemplate(self,template_name,template_values):
 		self.response.headers['Content-Type'] = 'text/html; charset=iso-8859-1'
@@ -54,19 +54,23 @@ class SessionHandler(BaseHandler):
 class SessionsGetHandler(BaseHandler):
 	@requiring(settings.ROLE_USER)
 	def get(self):
-		sessions = None
-		sessions_query = Session.all().order('-created')
-		cursor = self.request.get('cursor')
-		if cursor:
-			sessions_query = sessions_query.with_cursor(cursor)
-			cursor = None
-		sessions = sessions_query.fetch(self.perPage)
-		if (len(sessions)==self.perPage):
-			cursor = sessions_query.cursor()
-		template_values = {
-			'cursor':cursor,
-			'sessions': sessions,
-        }
+		# sessions = None
+		# sessions_query = Session.all().order('-created')
+		# cursor = self.request.get('cursor')
+		# if cursor:
+		# 	sessions_query = sessions_query.with_cursor(cursor)
+		# 	cursor = None
+		# sessions = sessions_query.fetch(self.perPage)
+		# if (len(sessions)==self.perPage):
+		# 	cursor = sessions_query.cursor()
+		# template_values = {
+		# 	'cursor':cursor,
+		# 	'sessions': sessions,
+  #       }
+  		template_values = helpers.give_a_page(entity_cls=Session, 
+													   next=self.request.get('next'), 
+													   previous=self.request.get('previous'), 
+													   page_size=self.perPage)
 		self.renderTemplate('sessions.html',template_values)
 
 class CrashLogsGetHandler(BaseHandler):
