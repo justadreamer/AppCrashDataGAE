@@ -12,9 +12,9 @@
 		    <input type="submit" value="Filter">
 		</form>
 		<br/>
-		{% if previous %}<a href="/crashlogs?previous={{ previous }}">Previous Page</a>{% endif %}
+		{% if previous %}<a href="/crashlogs?previous={{ previous }}{% if selected %}&app_id={{ selected }}{% endif %}">Previous Page</a>{% endif %}
 		&nbsp;
-		{% if next %}<a href="/crashlogs?next={{ next }}">Next Page</a>{% endif %}
+		{% if next %}<a href="/crashlogs?next={{ next }}{% if selected %}&app_id={{ selected }}{% endif %}">Next Page</a>{% endif %}
 		<table cellspacing="0px">
 			<tr>
 				<th>Build</th>

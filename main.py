@@ -5,7 +5,7 @@ import webapp2
 from models import Session, Crashlog, User, UserRole, FallenApp
 from utils.users import requiring, requiring_app_key
 import json
-from google.appengine.api import users
+from google.appengine.api import users, datastore_errors
 from google.appengine.ext import db
 import jinja2
 import os
@@ -87,7 +87,10 @@ class CrashLogsGetHandler(BaseHandler):
 			app_id_value = self.request.get('app_id')
 			app = None
 			if app_id_value:
-				app = FallenApp.get(app_id_value)
+				try:
+					app = FallenApp.get(app_id_value)
+				except datastore_errors.BadKeyError:
+					pass
 			
 			# if app:
 			# 	crashlogs_query = Crashlog.all().ancestor(app).order('-created')
@@ -103,7 +106,7 @@ class CrashLogsGetHandler(BaseHandler):
 			template_values = {
 				'app_name': (lambda x: x.name if x else 'All applications')(app),
 				'applications': applications,
-				'selected': (lambda x: x.key() if x else 'All applications')(app),
+				'selected': (lambda x: x.key() if x else None)(app),
 				}
 			template_values.update(helpers.give_a_page(entity_cls=Crashlog, 
 													   next=self.request.get('next'), 
