@@ -1,13 +1,15 @@
 {% extends "inner_part.html" %}
+
+	{% block applications_active %}active{% endblock %}
 	
 	{% block content %}
 		
-		<table cellspacing="0">
+		<table cellspacing="0" class="table table-bordered table-striped table-hover">
 			<tr><th>name</th><th>authorization key</th><th>description</th><th>actions</th>
 			{% for app in applications %}
 				<tr><td>{{ app.name }}</td>
-					<td>{{ app.auth_key }}</td>
-					<td>{{ app.description }}</td>
+					<td>{% if app.auth_key %} {{ app.auth_key }} {% else %} &nbsp; {% endif %}</td>
+					<td>{% if app.description %} {{ app.description }} {% else %} &nbsp; {% endif %}</td>
 					<td>
 						<form action="/applications" method="post" style="display:inline">
 							<input type="hidden" name="id" value="{{ app.key() }}" />

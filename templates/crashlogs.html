@@ -1,21 +1,51 @@
 {% extends "inner_part.html" %}
 	
+	{% block crashlogs_active %}active{% endblock %}
+
+	{% block select %}
+		<ul class="nav" style="margin-left:50px">
+			<li class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+					{{ app_name }}
+					<b class="caret"></b>
+				</a>
+				<ul class="dropdown-menu">
+					<li>
+						<a href="/crashlogs">All applications</a>
+					</li>
+					{% for app in applications %}
+						<li>
+							<a href="?app_id={{ app.key() }}">{{ app.name }}</a>
+						</li>
+					{% endfor %}
+				</ul>
+			</li>
+		</ul>
+	{% endblock %}
+
 	{% block content %}
-		<br/>
-		<form method="get" action="/crashlogs">
-			<select name="app_id"> 
-				<option value="" {% if not selected %} selected {% endif %}>All applications</option>
-				{% for app in applications %}
-			  		<option value="{{ app.key() }}" {% if app.key() ==  selected %} selected {% endif %}>{{ app.name }}</option>
-			  	{% endfor %}
-			</select>
-		    <input type="submit" value="Filter">
-		</form>
-		<br/>
-		{% if previous %}<a href="/crashlogs?previous={{ previous }}{% if selected %}&app_id={{ selected }}{% endif %}">Previous Page</a>{% endif %}
-		&nbsp;
-		{% if next %}<a href="/crashlogs?next={{ next }}{% if selected %}&app_id={{ selected }}{% endif %}">Next Page</a>{% endif %}
-		<table cellspacing="0px">
+		<ul class="pager ">
+			<li {% if not previous %} class="disabled" {% endif %}>
+	    		<a 
+	    			{% if previous %}
+	    				href="/crashlogs?previous={{ previous }}{% if selected %}&app_id={{ selected }}{% endif %}"
+	    			{% else %}
+	    				href="#"
+	    			{% endif %}
+	    			>&larr; Newer</a>
+			</li>
+			<li {% if not next %} class="disabled" {% endif %}>
+    			<a 
+	    			{% if next %}
+	    				href="/crashlogs?next={{ next }}{% if selected %}&app_id={{ selected }}{% endif %}"
+	    			{% else %}
+	    				href="#"
+	    			{% endif %}
+	    			>Older &rarr;</a>
+	    	</li>
+		</ul>
+
+		<table cellspacing="0px" class="table table-bordered table-striped table-hover">
 			<tr>
 				<th>Build</th>
  				<th>Device</th>

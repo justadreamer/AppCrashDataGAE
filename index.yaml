@@ -14,13 +14,12 @@ indexes:
   ancestor: yes
   properties:
   - name: created
-    direction: desc
 
 - kind: Crashlog
   ancestor: yes
   properties:
   - name: created
-    direction: asc
+    direction: desc
 
 - kind: Session
   ancestor: yes

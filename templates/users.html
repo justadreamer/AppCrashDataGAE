@@ -1,30 +1,40 @@
 {% extends "inner_part.html" %}
+
+	{% block users_active %}active{% endblock %}
 	
 	{% block content %}
+
+	<div class="row">
 		<p><a href="/users/migration">Migrate users</a> to attach them all roles</p>
 		<p><a href="/crashlogs/migration">Migrate crashlogs</a> to attach them an application</p>
-		<table cellspacing="0">
-			<tr><th>email</th><th>authorized</th><th>role</th><th>actions</th>
-		{% for user in users %}
-			<tr><td>{{ user.email }}</td>
-				<td>{% if user.authorized %}yes{% else %}no{% endif %}</td>
-				<td>{{ user.role.name }}</td>
-				<td>
-					<form action="/users" method="post" style="display:inline">
-						<input type="hidden" name="id" value="{{ user.key() }}" />
-						<input type="submit" name="delete" value="delete" style="display:inline" onclick="javascript:return confirm('Are you sure you would like to delete {{ user.email }}?')"/>
-						<input type="submit" name="switch_auth" value="switch authorization" style="display:inline" />
-						<input type="submit" name="switch_role" value="switch a role" style="display:inline" />
-					</form>
-				</td>
-		{% endfor %}
-		</table>
+			<table class="table table-bordered table-striped table-hover">
+				<thead>
+				<tr><th>email</th><th>authorized</th><th>role</th><th>actions</th></tr>
+				</thead>
+				<tbody>
+					{% for user in users %}
+						<tr><td>{{ user.email }}</td>
+							<td>{% if user.authorized %}yes{% else %}no{% endif %}</td>
+							<td>{{ user.role.name }}</td>
+							<td>
+								<form action="/users" method="post" style="display:inline">
+									<input type="hidden" name="id" value="{{ user.key() }}" />
+									<input type="submit" name="delete" value="delete" style="display:inline" onclick="javascript:return confirm('Are you sure you would like to delete {{ user.email }}?')"/>
+									<input type="submit" name="switch_auth" value="switch authorization" style="display:inline" />
+									<input type="submit" name="switch_role" value="switch a role" style="display:inline" />
+								</form>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
 		<br />
 		<br />
 		<form action="/users" method="post">
 				<input type="text" name="email" />
 				<input type="submit" value="Add">
 		</form>
+	</div>
 
 	{% endblock %}
 

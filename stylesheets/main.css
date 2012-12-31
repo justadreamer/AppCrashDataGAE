@@ -1,10 +1,22 @@
 
-table th {
-	border:solid 1px black;
+body {
+    padding-top: 45px;
+    position: relative;
 }
-table tr {
-	border:solid 1px black;
+
+table {
+    max-width: 940px;
 }
-table td {
-	border:solid 1px black;
+
+.table td {
+    max-width: 600px;
+    word-wrap: break-word;      /* IE 5+ */
+}
+
+.indexheader h1 {
+    font-size: 100px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 120px;
+    text-align: center;
 }

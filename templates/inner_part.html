@@ -1,19 +1,34 @@
 {% extends "base.html" %}
     
     {% block inner_part %}
+        <div class="navbar navbar-fixed-top" >
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="nav-collapse collapse navbar-responsive-collapse">
+                        <ul id="navigation" class="nav">
+                            <li class="{% block index_active %}{% endblock %}"><a href="/">Main</a></li>
+                            <li class="{% block sessions_active %}{% endblock %}"><a href="/sessions">Sessions/Tokens</a></li>
+                            <li class="{% block crashlogs_active %}{% endblock %}"><a href="/crashlogs">Crash Logs</a></li>
+                            {% if isSuperAdmin %}
+                                <li class="{% block users_active %}{% endblock %}"><a href="/users">Users</a></li>
+                                <li class="{% block applications_active %}{% endblock %}"><a href="/applications">Applications</a></li>
+                            {% endif %}
+                            <li class="divider-vertical"></li>
+                        </ul>
 
-        <ul id="navigation">
-        <li><a href="/">Main</a></li>
-        <li><a href="/sessions">Sessions/Tokens</a></li>
-        <li><a href="/crashlogs">Crash Logs</a></li>
-        {% if isSuperAdmin %}
-            <li><a href="/users">Users</a></li>
-            <li><a href="/applications">Applications</a></li>
-        {% endif %}
-        </ul>
+                        {% block select %}{% endblock %}
 
-        {% block content %} {% endblock %}
-
+                        <ul class="nav pull-right">
+                            <li class="divider-vertical"></li>
+                            <li ><a href="{{ logoutUrl }}">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            {% block content %} {% endblock %}
+        </div>
     {% endblock %}
 
     

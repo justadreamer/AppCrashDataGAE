@@ -1,12 +1,30 @@
 {% extends "inner_part.html" %}
 	
+	{% block sessions_active %}active{% endblock %}
+	
 	{% block content %}
-		<br/>
-		<br/>
-		{% if previous %}<a href="/sessions?previous={{ previous }}">Previous Page</a>{% endif %}
-		&nbsp;
-		{% if next %}<a href="/sessions?next={{ next }}">Next Page</a>{% endif %}
-		<table cellspacing="0px">
+		<ul class="pager ">
+			<li {% if not previous %} class="disabled" {% endif %}>
+	    		<a 
+	    			{% if previous %}
+	    				href="/sessions?previous={{ previous }}{% if selected %}&app_id={{ selected }}{% endif %}"
+	    			{% else %}
+	    				href="#"
+	    			{% endif %}
+	    			>&larr; Newer</a>
+			</li>
+			<li {% if not next %} class="disabled" {% endif %}>
+    			<a 
+	    			{% if next %}
+	    				href="/sessions?next={{ next }}{% if selected %}&app_id={{ selected }}{% endif %}"
+	    			{% else %}
+	    				href="#"
+	    			{% endif %}
+	    			>Older &rarr;</a>
+	    	</li>
+		</ul>
+
+		<table class="table table-bordered table-striped table-hover">
 			<tr>
 				<th>Name</th>
  				<th>Token</th>
